@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "ngrok": "./ngrok http 3000",
+    "ngrok": "./bin/ngrok http 3000",
+    "ngrok.exe": "./bin/ngrok.exe http 3000",
     "start": "node index.js"
   },
   "author": "",

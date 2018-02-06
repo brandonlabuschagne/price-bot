@@ -1,5 +1,6 @@
 const express = require('express')
 const bodyParser = require('body-parser')
+const data = require('./data')
 const app = express()
 
 app.use(bodyParser.json())
@@ -13,14 +14,50 @@ app.get('/:name', (req, res) => {
 })
 
 app.post('/bot', (req, res) => {
-    //console.log(req)
+
     const params = req.body.queryResult.parameters
-    const item = params.item
-    const message = `You asked about ${item}.`
-    const botResponse = {
-        fulfillmentText: message
+
+    const brand = params.item
+    const limit = params.number
+    const order = params.descriptor
+
+    let items = []
+
+    if (brand === 'Phone') {
+        items = data
+    } else if (brand) {
+        items = data.filter(item => item.brand === brand)
     }
-    console.log(params, botResponse)
+
+    if (order && items.length > 0) {
+        if (order === 'cheapest') {
+            items = items.sort((a, b) => {
+                return a.price > b.price
+            })
+        } else {
+            items = items.sort((a, b) => {
+                return a.price < b.price
+            })
+        } 
+    }
+
+    if (limit  && items.length > 0) {
+        items = items.slice(0, limit)
+    }
+
+    let message = 'This is what I found! '
+    if (items.length > 0) {
+        items.forEach(item => {
+            message += `${item.model} for R ${item.price.toFixed(2)}, `
+        })
+        message = message.slice(0, -2);
+    } else {
+        message = `Sorry, I couldn't find anything! :O`
+    }
+
+    console.log(params, message)
+    
+    const botResponse = { fulfillmentText: message }
     res.json(botResponse)
 })
 
